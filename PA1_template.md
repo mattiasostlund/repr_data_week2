@@ -1,19 +1,8 @@
----
-title: "Reproducable Research: Course Project 1"
-author: "Mattias Östlund"
-date: "19 juni 2016"
-output: 
-        html_document:
-                toc: true
-                toc_depth: 2
-                theme: cosmo
-                highlight: tango
-                keep_md: true
----
+# Reproducable Research: Course Project 1
+Mattias Östlund  
+12 juni 2016  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Preparation
 
@@ -24,17 +13,12 @@ Packages used in this document are:
 *   dplyr
 *   lubridate
 *   ggplot2
-```{r echo = FALSE, message = FALSE}
-library(downloader)
-library(tidyr)
-library(dplyr)
-library(lubridate)
-library(ggplot2)
-```
+
 
 
 Download, unzip and load the data to d
-```{r eval = TRUE }
+
+```r
 url <- "https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip"
 download(url, dest="dataset.zip", mode="wb") 
 unzip ("dataset.zip", exdir = "./")
@@ -44,7 +28,8 @@ d <- read.csv("activity.csv")
 ## What is mean total number of steps taken per day?
 ### Prepare dataset
 
-```{r }
+
+```r
 dd <- d %>% 
         filter(!is.na(steps)) %>%
         group_by(date) %>%
@@ -55,18 +40,22 @@ dd <- d %>%
 ### Result
 
 Histogram
-```{r }
+
+```r
 hist(dd$no_of_steps, main = "Total Steps", xlab = "No of Steps", col = "blue")
 ```
 
-The average of no of steps per day is **`r as.integer(mean(dd$no_of_steps))`** and meadian is **`r median(dd$no_of_steps)`**
+![](PA1_template_files/figure-html/unnamed-chunk-4-1.png)<!-- -->
+
+The average of no of steps per day is **10766** and meadian is **10765**
 
 
 
 ## Daily activity pattern
 ### Prepare dataset
 
-```{r }
+
+```r
 dd <- d %>% 
         filter(!is.na(steps)) %>%
         group_by(interval) %>%
@@ -79,42 +68,50 @@ average_steps <- as.integer(mean(d$steps, na.rm=TRUE))
 
 ### Result
 
-```{r }
+
+```r
 plot(dd$interval, dd$no_of_steps, type = "l", main = "Average No. of Steps per Interval", xlab = "Interval", ylab ="No. of Steps", col = "blue")
 ```
 
-The interval with max steps is **`r max_interval$interval`** and has **`r as.integer(max_interval$no_of_steps)`** steps.
+![](PA1_template_files/figure-html/unnamed-chunk-6-1.png)<!-- -->
+
+The interval with max steps is **835** and has **206** steps.
 
 
 
 ## Imputing missing values
 
 
-Total numbers of rows of missing data (NA) are **`r sum(is.na(d$steps))`**.
+Total numbers of rows of missing data (NA) are **2304**.
 
-Strategy to replace NA are taking the average steps for whole data set. Use the variable, average_steps which has the value of **`r average_steps`**.
+Strategy to replace NA are taking the average steps for whole data set. Use the variable, average_steps which has the value of **37**.
 
 ### Replace NA's
 
-Create a new dataset d_na whwew NA's are replaced with **`r average_steps`**.
-```{r}
+Create a new dataset d_na whwew NA's are replaced with **37**.
+
+```r
 d_na <- d
 d_na$steps[which(is.na(d_na$steps))] <- average_steps
 ```
 
 Histogram with replace NA's
-```{r }
+
+```r
 dd_na <- d_na %>% 
         group_by(date) %>%
         summarise(no_of_steps = sum(steps))
 hist(dd_na$no_of_steps, main = "Total Steps", xlab = "No of Steps", col = "blue")
 ```
 
-The average of no of steps per day is **`r as.integer(mean(dd_na$no_of_steps))`** and meadian is **`r median(dd_na$no_of_steps)`**
+![](PA1_template_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
+The average of no of steps per day is **10751** and meadian is **10656**
 
 ## Differences in activity patterns between weekdays and weekends
 
-```{r }
+
+```r
 dd_na <- d_na %>%
   mutate(wd = weekdays(ymd(as.character(date)),abbreviate = TRUE), wtype = factor(ifelse(wd %in% c("Mån", "Tis", "Ons", "Tor", "Fre"), "weekday" , "weekend"))) %>%
   group_by(wtype, interval) %>%
@@ -128,5 +125,7 @@ g <- g + xlab("Interval")
 g <- g + ylab("No of Steps")
 g
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-9-1.png)<!-- -->
 
 ### End of Report
